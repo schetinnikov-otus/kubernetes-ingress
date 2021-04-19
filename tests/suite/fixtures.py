@@ -45,6 +45,7 @@ from suite.resources_utils import (
     delete_service,
     replace_configmap_from_yaml,
     delete_testing_namespaces,
+    get_first_pod_name,
 )
 from suite.resources_utils import (
     create_ingress_controller,
@@ -742,18 +743,22 @@ class TransportServerSetup:
         namespace (str):
     """
 
-    def __init__(self, name, namespace):
+    def __init__(self, name, namespace, ingress_name, ingress_pod_name, ic_namespace):
         self.name = name
         self.namespace = namespace
+        self.ingress_name = ingress_name
+        self.ingress_pod_name = ingress_pod_name
+        self.ic_namespace = ic_namespace
 
 
 @pytest.fixture(scope="class")
 def transport_server_setup(
-        request, kube_apis, test_namespace
+        request, kube_apis, ingress_controller_prerequisites, test_namespace
 ) -> TransportServerSetup:
     """
     Prepare Transport Server Example.
 
+    :param ingress_controller_prerequisites:
     :param request: internal pytest fixture to parametrize this method
     :param kube_apis: client apis
     :param test_namespace:
@@ -785,7 +790,11 @@ def transport_server_setup(
 
     request.addfinalizer(fin)
 
-    return TransportServerSetup(ts_resource['metadata']['name'], test_namespace)
+    ingress_name = "nginx-ingress"
+    ic_pod_name = get_first_pod_name(kube_apis.v1, ingress_controller_prerequisites.namespace)
+    ic_namespace = ingress_controller_prerequisites.namespace
+
+    return TransportServerSetup(ts_resource['metadata']['name'], test_namespace, ingress_name, ic_pod_name, ic_namespace)
 
 
 @pytest.fixture(scope="class")

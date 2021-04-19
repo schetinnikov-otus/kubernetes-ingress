@@ -131,6 +131,36 @@ def create_deployment_from_yaml(apps_v1_api: AppsV1Api, namespace, yaml_manifest
     return create_deployment(apps_v1_api, namespace, dep)
 
 
+def patch_deployment_from_yaml(apps_v1_api: AppsV1Api, namespace, yaml_manifest) -> str:
+    """
+    Create a deployment based on yaml file.
+
+    :param apps_v1_api: AppsV1Api
+    :param namespace: namespace name
+    :param yaml_manifest: absolute path to file
+    :return: str
+    """
+    print(f"Load {yaml_manifest}")
+    with open(yaml_manifest) as f:
+        dep = yaml.safe_load(f)
+    return patch_deployment(apps_v1_api, namespace, dep)
+
+
+def patch_deployment(apps_v1_api: AppsV1Api, namespace, body) -> str:
+    """
+    Create a deployment based on a dict.
+
+    :param apps_v1_api: AppsV1Api
+    :param namespace: namespace name
+    :param body: dict
+    :return: str
+    """
+    print("Patch a deployment:")
+    apps_v1_api.patch_namespaced_deployment(body['metadata']['name'], namespace, body)
+    print(f"Deployment patched with name '{body['metadata']['name']}'")
+    return body['metadata']['name']
+
+
 def create_deployment(apps_v1_api: AppsV1Api, namespace, body) -> str:
     """
     Create a deployment based on a dict.
@@ -748,6 +778,21 @@ def get_ingress_nginx_template_conf(v1: CoreV1Api, ingress_namespace, ingress_na
     """
     file_path = f"/etc/nginx/conf.d/{ingress_namespace}-{ingress_name}.conf"
     return get_file_contents(v1, file_path, pod_name, pod_namespace)
+
+
+def get_ingress_nginx_template_ts_conf(v1: CoreV1Api, resource_namespace, resource_name, ingress_name, ingress_namespace) -> str:
+    """
+    Get contents of /etc/nginx/conf.d/{namespace}-{ingress_name}.conf in the pod.
+
+    :param v1: CoreV1Api
+    :param resource_namespace:
+    :param resource_name:
+    :param ingress_name:
+    :param ingress_namespace:
+    :return: str
+    """
+    file_path = f"/etc/nginx/stream-conf.d/ts_{resource_namespace}_{resource_name}.conf"
+    return get_file_contents(v1, file_path, ingress_name, ingress_namespace)
 
 
 def create_example_app(kube_apis, app_type, namespace) -> None:

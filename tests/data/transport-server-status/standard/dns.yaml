@@ -33,9 +33,6 @@ spec:
           readOnly: true
         ports:
         - containerPort: 5353
-          name: dns
-          protocol: UDP
-        - containerPort: 5353
           name: dns-tcp
           protocol: TCP
         securityContext:
