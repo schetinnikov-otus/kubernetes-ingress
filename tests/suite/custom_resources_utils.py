@@ -372,7 +372,7 @@ def delete_resource(custom_objects: CustomObjectsApi, resource, namespace, plura
     kind = resource['kind']
     group, version = resource["apiVersion"].split("/")
 
-    print(f"Delete a: {kind}, name: {name}")
+    print(f"Delete a '{kind}' with name '{name}'")
 
     custom_objects.delete_namespaced_custom_object(
         group, version, namespace, plural, name
@@ -385,7 +385,7 @@ def delete_resource(custom_objects: CustomObjectsApi, resource, namespace, plura
         plural,
         name,
     )
-    print(f"Resource:{kind} was removed with name '{name}'")
+    print(f"Resource '{kind}' was removed with name '{name}'")
 
 
 def create_ap_logconf_from_yaml(custom_objects: CustomObjectsApi, yaml_manifest, namespace) -> str:
